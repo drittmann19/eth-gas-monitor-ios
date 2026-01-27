@@ -63,6 +63,11 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
                     .padding(.top, 12)
 
+                // Transaction costs card
+                TransactionCostsCard()
+                    .padding(.horizontal, 16)
+                    .padding(.top, 24)
+
                 Spacer()
             }
         }
