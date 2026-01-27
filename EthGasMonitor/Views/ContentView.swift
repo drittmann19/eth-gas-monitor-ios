@@ -52,6 +52,11 @@ struct ContentView: View {
                 GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage)
                     .padding(.top, 24)
 
+                // Transaction costs card
+                TransactionCostsCard()
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+
                 // Speed toggle
                 SpeedToggleView(selectedSpeed: $selectedSpeed)
                     .padding(.horizontal, 16)
@@ -62,11 +67,6 @@ struct ContentView: View {
                     .font(.system(size: 11, weight: .regular, design: .monospaced))
                     .foregroundStyle(.secondary)
                     .padding(.top, 12)
-
-                // Transaction costs card
-                TransactionCostsCard()
-                    .padding(.horizontal, 16)
-                    .padding(.top, 24)
 
                 Spacer()
             }
