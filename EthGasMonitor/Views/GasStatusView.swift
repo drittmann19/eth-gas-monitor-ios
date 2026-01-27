@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct GasStatusView: View {
-    // MARK: - Static Data (will be dynamic later)
-    let gweiValue: Double = 128.5
-    let statusMessage: String = "AVOID TRANSACTING"
+    // MARK: - Data (passed from parent)
+    let gweiValue: Double
+    let statusMessage: String
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,20 +44,7 @@ struct GasStatusView: View {
 
 #Preview {
     VStack {
-        // Header preview
-        HStack {
-            Rectangle()
-                .fill(.black)
-                .frame(width: 16, height: 16)
-            Text("ETH MAINNET")
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                .tracking(2)
-            Spacer()
-        }
-        .padding(.horizontal, 16)
-
-        GasStatusView()
-
+        GasStatusView(gweiValue: 128.5, statusMessage: "AVOID TRANSACTING")
         Spacer()
     }
     .background(.white)
