@@ -53,7 +53,7 @@ struct ContentView: View {
                     .padding(.top, 24)
 
                 // Transaction costs card
-                TransactionCostsCard()
+                TransactionCostsCard(selectedSpeed: selectedSpeed)
                     .padding(.horizontal, 16)
                     .padding(.top, 16)
 
