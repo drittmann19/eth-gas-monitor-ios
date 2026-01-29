@@ -34,41 +34,55 @@ struct ContentView: View {
             Color.white
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Header
-                HStack {
-                    Rectangle()
-                        .fill(.black)
-                        .frame(width: 16, height: 16)
-                    Text("ETH MAINNET")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
-                        .tracking(2)
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                // Hero gas display
-                GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage)
-                    .padding(.top, 24)
-
-                // Transaction costs card
-                TransactionCostsCard(selectedSpeed: selectedSpeed)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // Header
+                    HStack {
+                        Rectangle()
+                            .fill(.black)
+                            .frame(width: 16, height: 16)
+                        Text("ETH MAINNET")
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                            .tracking(2)
+                        Spacer()
+                    }
                     .padding(.horizontal, 16)
-                    .padding(.top, 16)
+                    .padding(.top, 8)
 
-                // Speed toggle
-                SpeedToggleView(selectedSpeed: $selectedSpeed)
+                    // Hero gas display
+                    GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage)
+                        .padding(.top, 24)
+
+                    // Transaction costs card
+                    TransactionCostsCard(selectedSpeed: selectedSpeed)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
+
+                    // Speed toggle
+                    SpeedToggleView(selectedSpeed: $selectedSpeed)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 24)
+
+                    // Metadata row
+                    Text("UPDATED: 00:00:12")
+                        .font(.system(size: 11, weight: .regular, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 12)
+
+                    // Gas trend card
+                    GasTrendCard()
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
+
+                    // Best window + Congestion side-by-side
+                    HStack(spacing: 12) {
+                        BestWindowCard()
+                        CongestionCard()
+                    }
                     .padding(.horizontal, 16)
-                    .padding(.top, 24)
-
-                // Metadata row
-                Text("UPDATED: 00:00:12")
-                    .font(.system(size: 11, weight: .regular, design: .monospaced))
-                    .foregroundStyle(.secondary)
                     .padding(.top, 12)
-
-                Spacer()
+                }
+                .padding(.bottom, 24)
             }
         }
     }
