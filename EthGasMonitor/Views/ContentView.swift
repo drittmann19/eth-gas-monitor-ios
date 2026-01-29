@@ -21,10 +21,11 @@ struct ContentView: View {
     }
 
     private var statusMessage: String {
-        switch selectedSpeed {
-        case .slow: return "GOOD TO TRANSACT"
-        case .standard: return "MODERATE"
-        case .fast: return "AVOID TRANSACTING"
+        switch gweiValue {
+        case ..<8: return "OPTIMAL"
+        case 8..<20: return "ACCEPTABLE"
+        case 20..<50: return "COSTLY"
+        default: return "SEVERE"
         }
     }
 
@@ -46,21 +47,21 @@ struct ContentView: View {
                             .tracking(2)
                         Spacer()
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 24)
                     .padding(.top, 8)
 
                     // Hero gas display
-                    GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage)
+                    GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage, congestionPercent: 88)
                         .padding(.top, 24)
 
                     // Transaction costs card
                     TransactionCostsCard(selectedSpeed: selectedSpeed)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, 24)
                         .padding(.top, 16)
 
                     // Speed toggle
                     SpeedToggleView(selectedSpeed: $selectedSpeed)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, 24)
                         .padding(.top, 24)
 
                     // Metadata row
@@ -71,16 +72,13 @@ struct ContentView: View {
 
                     // Gas trend card
                     GasTrendCard()
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, 24)
                         .padding(.top, 16)
 
-                    // Best window + Congestion side-by-side
-                    HStack(spacing: 12) {
-                        BestWindowCard()
-                        CongestionCard()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
+                    // Best window card
+                    BestWindowCard()
+                        .padding(.horizontal, 24)
+                        .padding(.top, 12)
                 }
                 .padding(.bottom, 24)
             }

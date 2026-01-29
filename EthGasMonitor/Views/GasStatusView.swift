@@ -11,31 +11,26 @@ struct GasStatusView: View {
     // MARK: - Data (passed from parent)
     let gweiValue: Double
     let statusMessage: String
+    let congestionPercent: Int
 
     var body: some View {
         VStack(spacing: 0) {
-            // Status badge - bordered pill
-            Text(statusMessage)
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
+            // Info badge - bordered pill
+            Text(String(format: "%.1f GWEI | CONGESTION %d%%", gweiValue, congestionPercent))
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .tracking(1)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
                 .overlay(
                     Rectangle()
                         .stroke(.black, lineWidth: 2)
                 )
 
-            // Large gwei number - the hero element
-            Text(String(format: "%.1f", gweiValue))
-                .font(.system(size: 96, weight: .heavy, design: .monospaced))
+            // Large status name - the hero element
+            Text(statusMessage)
+                .font(.system(size: 56, weight: .heavy, design: .monospaced))
                 .foregroundStyle(.orange)
-                .padding(.top, 16)
-
-            // Gwei label - orange to match
-            Text("GWEI")
-                .font(.system(size: 24, weight: .bold, design: .monospaced))
-                .tracking(8)
-                .foregroundStyle(.orange)
+                .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
@@ -44,7 +39,7 @@ struct GasStatusView: View {
 
 #Preview {
     VStack {
-        GasStatusView(gweiValue: 128.5, statusMessage: "AVOID TRANSACTING")
+        GasStatusView(gweiValue: 128.5, statusMessage: "SEVERE", congestionPercent: 88)
         Spacer()
     }
     .background(.white)
