@@ -33,7 +33,8 @@ struct GasStatusView: View {
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
+        .padding(.top, 24)
+        .padding(.bottom, 4)
     }
 }
 

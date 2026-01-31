@@ -30,7 +30,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             // Background color - white like the design
             Color.white
                 .ignoresSafeArea()
@@ -52,35 +52,69 @@ struct ContentView: View {
 
                     // Hero gas display
                     GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage, congestionPercent: 88)
-                        .padding(.top, 24)
-
-                    // Transaction costs card
-                    TransactionCostsCard(selectedSpeed: selectedSpeed)
-                        .padding(.horizontal, 24)
-                        .padding(.top, 16)
-
-                    // Speed toggle
-                    SpeedToggleView(selectedSpeed: $selectedSpeed)
-                        .padding(.horizontal, 24)
-                        .padding(.top, 24)
+                        .padding(.top, 96)
 
                     // Metadata row
                     Text("UPDATED: 00:00:12")
                         .font(.system(size: 11, weight: .regular, design: .monospaced))
                         .foregroundStyle(.secondary)
-                        .padding(.top, 12)
+                        .padding(.bottom, 96)
+
+                    // Transaction costs card
+                    TransactionCostsCard(selectedSpeed: selectedSpeed)
+                        .padding(.horizontal, 24)
 
                     // Gas trend card
-                    GasTrendCard()
+                    GasTrendCard(
+                        trendData: [0.30, 0.28, 0.32, 0.35, 0.33, 0.40, 0.45, 0.42, 0.50, 0.55, 0.62, 0.70],
+                        changePercent: "+45%",
+                        trendLabel: "SURGING",
+                        hourMarks: [
+                            HourMark(position: 0.111, label: "12:00"),
+                            HourMark(position: 0.444, label: "13:00"),
+                            HourMark(position: 0.778, label: "14:00")
+                        ]
+                    )
                         .padding(.horizontal, 24)
-                        .padding(.top, 16)
+                        .padding(.top, 32)
 
-                    // Best window card
-                    BestWindowCard()
+                    // Gas averages card
+                    GasAveragesCard(
+                        avg1d: 24, avg3d: 18, avg7d: 15,
+                        cost1d: 0.60, cost3d: 0.45, cost7d: 0.38
+                    )
                         .padding(.horizontal, 24)
-                        .padding(.top, 12)
+                        .padding(.top, 32)
+
+                    // Best window + Network activity (side by side)
+                    HStack(spacing: 12) {
+                        BestWindowCard()
+
+                        NetworkActivityCard(
+                            activityLevel: "HIGH VOLUME",
+                            explanation: "Major NFT mint driving elevated gas prices",
+                            durationHint: "Typical duration: 1-3 hours"
+                        )
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 32)
                 }
-                .padding(.bottom, 24)
+                .padding(.bottom, 100)
+            }
+
+            // Floating speed toggle
+            VStack(spacing: 0) {
+                LinearGradient(
+                    colors: [.white.opacity(0), .white],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 24)
+
+                SpeedToggleView(selectedSpeed: $selectedSpeed)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
+                    .background(.white)
             }
         }
     }

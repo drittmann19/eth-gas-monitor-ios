@@ -1,39 +1,31 @@
 //
-//  BestWindowCard.swift
+//  NetworkActivityCard.swift
 //  EthGasMonitor
 //
-//  Created by Damean Rittmann on 1/29/26.
+//  Created by Damean Rittmann on 1/31/26.
 //
 
 import SwiftUI
 
-struct BestWindowCard: View {
-    // MARK: - Static Data (will be dynamic later)
-    let startTime: String = "02:00"
-    let endTime: String = "04:00"
+struct NetworkActivityCard: View {
+    // MARK: - Properties
+    let activityLevel: String
+    let explanation: String
+    let durationHint: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Start time
-            Text(startTime)
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundStyle(.black)
-
-            // TO label
-            Text("TO")
-                .font(.system(size: 11, weight: .regular, design: .monospaced))
-                .foregroundStyle(.gray)
-
-            // End time
-            Text(endTime)
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
+            Text(activityLevel)
+                .font(.system(size: 18, weight: .bold, design: .monospaced))
                 .foregroundStyle(.orange)
 
-            Spacer(minLength: 0)
+            Text(explanation)
+                .font(.system(size: 12, weight: .regular, design: .monospaced))
+                .foregroundStyle(.black)
+                .lineSpacing(4)
 
-            // Source label
-            Text("Based on past 7 days")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+            Text(durationHint)
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
                 .foregroundStyle(.black.opacity(0.4))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -45,7 +37,7 @@ struct BestWindowCard: View {
                 .stroke(.black, lineWidth: 2)
         )
         .overlay(alignment: .topLeading) {
-            Text("BEST WINDOW")
+            Text("NETWORK ACTIVITY")
                 .font(.system(size: 11, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8)
@@ -63,8 +55,12 @@ struct BestWindowCard: View {
 
 #Preview {
     VStack {
-        BestWindowCard()
-            .padding(.horizontal, 24)
+        NetworkActivityCard(
+            activityLevel: "HIGH VOLUME",
+            explanation: "Major NFT mint driving\nelevated gas prices",
+            durationHint: "Typical duration: 1-3 hours"
+        )
+        .padding(.horizontal, 24)
         Spacer()
     }
     .background(.white)

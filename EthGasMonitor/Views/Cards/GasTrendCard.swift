@@ -7,37 +7,53 @@
 
 import SwiftUI
 
+struct HourMark: Identifiable {
+    let id = UUID()
+    let position: CGFloat
+    let label: String
+}
+
 struct GasTrendCard: View {
-    // MARK: - Static Data (will be dynamic later)
-    let trendData: [Double] = [0.15, 0.18, 0.25, 0.22, 0.35, 0.30, 0.42, 0.38, 0.48, 0.55, 0.70, 0.85]
-    let changePercent: String = "+45%"
-    let trendLabel: String = "SURGING"
+    // MARK: - Properties
+    let trendData: [Double]
+    let changePercent: String
+    let trendLabel: String
+    let hourMarks: [HourMark]
+
+    private let chartInset: CGFloat = 6
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header row
-            HStack {
-                Text("GAS TREND")
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
-
+            // Trend label + change percent - right aligned
+            HStack(spacing: 6) {
                 Spacer()
+
+                Text(trendLabel)
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundStyle(.orange)
 
                 Text(changePercent)
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.black)
+                    .foregroundStyle(.orange)
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, 8)
 
             // Chart area
             GeometryReader { geo in
                 let chartWidth = geo.size.width
                 let chartHeight = geo.size.height
+                let drawableWidth = chartWidth - chartInset * 2
 
                 ZStack(alignment: .topLeading) {
-                    // Grid lines
+                    // Vertical hour lines
+                    ForEach(hourMarks) { mark in
+                        Rectangle()
+                            .fill(.black.opacity(0.08))
+                            .frame(width: 1, height: chartHeight)
+                            .offset(x: chartInset + drawableWidth * mark.position)
+                    }
+
+                    // Horizontal grid lines
                     ForEach(1..<4) { i in
                         Rectangle()
                             .fill(.black.opacity(0.08))
@@ -46,7 +62,7 @@ struct GasTrendCard: View {
                     }
 
                     // Trend line
-                    TrendLineShape(data: trendData)
+                    TrendLineShape(data: trendData, horizontalInset: chartInset)
                         .stroke(.orange, lineWidth: 2.5)
 
                     // End dot
@@ -54,34 +70,62 @@ struct GasTrendCard: View {
                         .fill(.orange)
                         .frame(width: 12, height: 12)
                         .position(
-                            x: chartWidth,
+                            x: chartInset + drawableWidth,
                             y: chartHeight * (1.0 - (trendData.last ?? 0))
                         )
                 }
             }
             .frame(height: 140)
             .clipped()
-            .padding(.bottom, 12)
+            .padding(.bottom, 4)
 
-            // Footer row
-            HStack {
-                Text("24H AGO")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+            // X-axis hour labels
+            GeometryReader { geo in
+                let drawableWidth = geo.size.width - chartInset * 2
+                let nowX = chartInset + drawableWidth
+
+                ForEach(hourMarks) { mark in
+                    let markX = chartInset + drawableWidth * mark.position
+                    if nowX - markX > 30 {
+                        Text(mark.label)
+                            .font(.system(size: 9, weight: .bold, design: .monospaced))
+                            .foregroundStyle(.black.opacity(0.4))
+                            .fixedSize()
+                            .position(
+                                x: markX,
+                                y: geo.size.height / 2
+                            )
+                    }
+                }
+
+                Text("NOW")
+                    .font(.system(size: 9, weight: .bold, design: .monospaced))
                     .foregroundStyle(.black.opacity(0.4))
-
-                Spacer()
-
-                Text(trendLabel)
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.orange)
+                    .fixedSize()
+                    .position(
+                        x: nowX,
+                        y: geo.size.height / 2
+                    )
             }
+            .frame(height: 14)
         }
         .padding(16)
+        .padding(.top, 2)
         .background(.white)
         .overlay(
             Rectangle()
                 .stroke(.black, lineWidth: 2)
         )
+        // Title badge on top border
+        .overlay(alignment: .topLeading) {
+            Text("GAS TREND")
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.black)
+                .offset(x: 12, y: -10)
+        }
         .background(
             Rectangle()
                 .fill(.black)
@@ -93,15 +137,17 @@ struct GasTrendCard: View {
 // MARK: - Trend Line Shape
 struct TrendLineShape: Shape {
     let data: [Double]
+    var horizontalInset: CGFloat = 0
 
     func path(in rect: CGRect) -> Path {
         guard data.count >= 2 else { return Path() }
 
-        let stepX = rect.width / CGFloat(data.count - 1)
+        let drawableWidth = rect.width - horizontalInset * 2
+        let stepX = drawableWidth / CGFloat(data.count - 1)
 
         var path = Path()
         for (index, value) in data.enumerated() {
-            let x = CGFloat(index) * stepX
+            let x = horizontalInset + CGFloat(index) * stepX
             let y = rect.height * (1.0 - value)
 
             if index == 0 {
@@ -116,8 +162,17 @@ struct TrendLineShape: Shape {
 
 #Preview {
     VStack {
-        GasTrendCard()
-            .padding(.horizontal, 16)
+        GasTrendCard(
+            trendData: [0.30, 0.28, 0.32, 0.35, 0.33, 0.40, 0.45, 0.42, 0.50, 0.55, 0.62, 0.70],
+            changePercent: "+45%",
+            trendLabel: "SURGING",
+            hourMarks: [
+                HourMark(position: 0.111, label: "12:00"),
+                HourMark(position: 0.444, label: "13:00"),
+                HourMark(position: 0.778, label: "14:00")
+            ]
+        )
+        .padding(.horizontal, 24)
         Spacer()
     }
     .background(.white)

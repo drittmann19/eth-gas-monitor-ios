@@ -1,62 +1,36 @@
 //
-//  TransactionCostsCard.swift
+//  GasAveragesCard.swift
 //  EthGasMonitor
 //
-//  Created by Damean Rittmann on 1/26/26.
+//  Created by Damean Rittmann on 1/31/26.
 //
 
 import SwiftUI
 
-struct TransactionCostsCard: View {
-    // MARK: - Input
-    let selectedSpeed: GasSpeed
-
-    // MARK: - Computed Costs (based on speed)
-    private var transferCost: Double {
-        switch selectedSpeed {
-        case .slow: return 0.40
-        case .standard: return 0.60
-        case .fast: return 6.50
-        }
-    }
-
-    private var swapCost: Double {
-        switch selectedSpeed {
-        case .slow: return 2.60
-        case .standard: return 3.90
-        case .fast: return 42.00
-        }
-    }
-
-    private var mintCost: Double {
-        switch selectedSpeed {
-        case .slow: return 5.30
-        case .standard: return 7.90
-        case .fast: return 85.00
-        }
-    }
+struct GasAveragesCard: View {
+    // MARK: - Properties
+    let avg1d: Double
+    let avg3d: Double
+    let avg7d: Double
+    let cost1d: Double
+    let cost3d: Double
+    let cost7d: Double
 
     var body: some View {
-        // Card content
         HStack(spacing: 0) {
-            // Transfer column
-            CostColumn(label: "TRANSFER", cost: transferCost)
+            AverageColumn(period: "1 DAY", gwei: avg1d, cost: cost1d)
 
-            // Divider
             Rectangle()
                 .fill(.black.opacity(0.2))
                 .frame(width: 1)
 
-            // Swap column
-            CostColumn(label: "SWAP", cost: swapCost)
+            AverageColumn(period: "3 DAY", gwei: avg3d, cost: cost3d)
 
-            // Divider
             Rectangle()
                 .fill(.black.opacity(0.2))
                 .frame(width: 1)
 
-            // Mint column
-            CostColumn(label: "MINT", cost: mintCost)
+            AverageColumn(period: "7 DAY", gwei: avg7d, cost: cost7d)
         }
         .padding(.vertical, 16)
         .padding(.top, 2)
@@ -67,7 +41,7 @@ struct TransactionCostsCard: View {
                 .stroke(.black, lineWidth: 2)
         )
         .overlay(alignment: .topLeading) {
-            Text("ESTIMATED COSTS")
+            Text("GAS AVERAGES")
                 .font(.system(size: 11, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8)
@@ -83,20 +57,25 @@ struct TransactionCostsCard: View {
     }
 }
 
-// MARK: - Cost Column Component
-struct CostColumn: View {
-    let label: String
+// MARK: - Average Column Component
+struct AverageColumn: View {
+    let period: String
+    let gwei: Double
     let cost: Double
 
     var body: some View {
         VStack(spacing: 4) {
-            Text(label)
+            Text(period)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(.black)
 
-            Text(String(format: "$%.2f", cost))
+            Text("\(Int(gwei)) GWEI")
                 .font(.system(size: 18, weight: .bold, design: .monospaced))
                 .foregroundStyle(.orange)
+
+            Text(String(format: "~$%.2f", cost))
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .foregroundStyle(.black.opacity(0.4))
         }
         .frame(maxWidth: .infinity)
     }
@@ -104,8 +83,11 @@ struct CostColumn: View {
 
 #Preview {
     VStack {
-        TransactionCostsCard(selectedSpeed: .fast)
-            .padding(.horizontal, 16)
+        GasAveragesCard(
+            avg1d: 24, avg3d: 18, avg7d: 15,
+            cost1d: 0.60, cost3d: 0.45, cost7d: 0.38
+        )
+        .padding(.horizontal, 24)
         Spacer()
     }
     .background(.white)
