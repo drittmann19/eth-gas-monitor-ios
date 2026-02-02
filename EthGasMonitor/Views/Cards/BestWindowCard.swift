@@ -12,12 +12,19 @@ struct BestWindowCard: View {
     let startTime: String = "02:00"
     let endTime: String = "04:00"
 
+    private var timezoneAbbreviation: String {
+        TimeZone.current.abbreviation() ?? "UTC"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Start time
-            Text(startTime)
+            (Text(startTime)
                 .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundStyle(.black)
+                .foregroundColor(.black)
+            + Text(" \(timezoneAbbreviation)")
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                .foregroundColor(.gray))
 
             // TO label
             Text("TO")
@@ -25,9 +32,12 @@ struct BestWindowCard: View {
                 .foregroundStyle(.gray)
 
             // End time
-            Text(endTime)
+            (Text(endTime)
                 .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundStyle(.orange)
+                .foregroundColor(.black)
+            + Text(" \(timezoneAbbreviation)")
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                .foregroundColor(.gray))
 
             Spacer(minLength: 0)
 

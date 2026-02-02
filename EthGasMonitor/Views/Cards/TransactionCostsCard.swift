@@ -40,7 +40,7 @@ struct TransactionCostsCard: View {
         // Card content
         HStack(spacing: 0) {
             // Transfer column
-            CostColumn(label: "TRANSFER", cost: transferCost)
+            CostColumn(label: "TRANSFER", cost: transferCost, costColor: .black)
 
             // Divider
             Rectangle()
@@ -48,7 +48,7 @@ struct TransactionCostsCard: View {
                 .frame(width: 1)
 
             // Swap column
-            CostColumn(label: "SWAP", cost: swapCost)
+            CostColumn(label: "SWAP", cost: swapCost, costColor: .orange)
 
             // Divider
             Rectangle()
@@ -56,7 +56,7 @@ struct TransactionCostsCard: View {
                 .frame(width: 1)
 
             // Mint column
-            CostColumn(label: "MINT", cost: mintCost)
+            CostColumn(label: "MINT", cost: mintCost, costColor: .black)
         }
         .padding(.vertical, 16)
         .padding(.top, 2)
@@ -87,16 +87,17 @@ struct TransactionCostsCard: View {
 struct CostColumn: View {
     let label: String
     let cost: Double
+    var costColor: Color = .black
 
     var body: some View {
         VStack(spacing: 4) {
             Text(label)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(.black)
+                .foregroundStyle(.gray)
 
             Text(String(format: "$%.2f", cost))
                 .font(.system(size: 18, weight: .bold, design: .monospaced))
-                .foregroundStyle(.orange)
+                .foregroundStyle(costColor)
         }
         .frame(maxWidth: .infinity)
     }

@@ -78,10 +78,9 @@ struct ContentView: View {
                         .padding(.horizontal, 24)
                         .padding(.top, 32)
 
-                    // Gas averages card
+                    // Swap averages card
                     GasAveragesCard(
-                        avg1d: 24, avg3d: 18, avg7d: 15,
-                        cost1d: 0.60, cost3d: 0.45, cost7d: 0.38
+                        cost1d: 3.90, cost3d: 2.85, cost7d: 2.40
                     )
                         .padding(.horizontal, 24)
                         .padding(.top, 32)
