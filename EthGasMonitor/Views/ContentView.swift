@@ -29,6 +29,13 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Network Data (mock for now, will be API-driven)
+    private var networkData: NetworkData {
+        // TODO: Replace with real API data
+        // Using congested network mock for demo
+        NetworkData.congestedNetwork
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             // Background color - white like the design
@@ -85,15 +92,11 @@ struct ContentView: View {
                         .padding(.horizontal, 24)
                         .padding(.top, 32)
 
-                    // Best window + Network activity (side by side)
+                    // Best window + Network status (side by side)
                     HStack(spacing: 12) {
                         BestWindowCard()
 
-                        NetworkActivityCard(
-                            activityLevel: "HIGH VOLUME",
-                            explanation: "Major NFT mint driving elevated gas prices",
-                            durationHint: "Typical duration: 1-3 hours"
-                        )
+                        NetworkActivityCard(networkData: networkData)
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 32)

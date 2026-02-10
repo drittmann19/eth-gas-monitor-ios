@@ -43,7 +43,7 @@ struct BestWindowCard: View {
 
             // Source label
             Text("Based on past 7 days")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(.black.opacity(0.4))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
