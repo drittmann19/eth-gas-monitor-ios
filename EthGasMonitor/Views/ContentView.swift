@@ -41,29 +41,17 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             // Background color - white like the design
             Color.white
                 .ignoresSafeArea()
 
+            // Scrollable content
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // Header
-                    HStack {
-                        Rectangle()
-                            .fill(.black)
-                            .frame(width: 16, height: 16)
-                        Text("ETH MAINNET")
-                            .font(.system(size: 14, weight: .bold, design: .monospaced))
-                            .tracking(2)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 8)
-
                     // Hero gas display
                     GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage, congestionPercent: 88)
-                        .padding(.top, 96)
+                        .padding(.top, 136)
 
                     // Metadata row
                     Text("UPDATED: 00:00:12")
@@ -110,9 +98,35 @@ struct ContentView: View {
             }
 
             // Floating speed toggle
-            SpeedToggleView(selectedSpeed: $selectedSpeed)
+            VStack {
+                Spacer()
+                SpeedToggleView(selectedSpeed: $selectedSpeed)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
+            }
+
+            // Sticky header
+            VStack(spacing: 0) {
+                HStack {
+                    Rectangle()
+                        .fill(.black)
+                        .frame(width: 16, height: 16)
+                    Text("ETH MAINNET")
+                        .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        .tracking(2)
+                    Spacer()
+                }
                 .padding(.horizontal, 24)
-                .padding(.bottom, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .frame(maxWidth: .infinity)
+                .background(
+                    Color.white
+                        .ignoresSafeArea(edges: .top)
+                )
+
+                Spacer()
+            }
         }
     }
 }
