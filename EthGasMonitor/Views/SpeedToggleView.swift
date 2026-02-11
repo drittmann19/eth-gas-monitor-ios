@@ -37,7 +37,7 @@ struct SpeedToggleView: View {
                         .background {
                             if selectedSpeed == speed {
                                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(Color(white: 0.15))
+                                    .fill(Color(white: 0.08))
                                     .matchedGeometryEffect(id: "selector", in: animation)
                                     .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 3)
                             }
@@ -49,7 +49,7 @@ struct SpeedToggleView: View {
         .padding(4)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(.ultraThinMaterial)
+                .fill(.thickMaterial)
                 .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
         )
         .overlay(
@@ -68,7 +68,6 @@ struct SpeedToggleView: View {
 
 #Preview {
     ZStack {
-        // Colorful background to show glass effect
         LinearGradient(
             colors: [.blue.opacity(0.3), .purple.opacity(0.3), .orange.opacity(0.3)],
             startPoint: .topLeading,
