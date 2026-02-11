@@ -19,6 +19,7 @@ struct GasTrendCard: View {
     let changePercent: String
     let trendLabel: String
     let hourMarks: [HourMark]
+    let statusColor: Color
 
     private let chartInset: CGFloat = 6
 
@@ -30,11 +31,11 @@ struct GasTrendCard: View {
 
                 Text(trendLabel)
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(statusColor)
 
                 Text(changePercent)
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(statusColor)
             }
             .padding(.bottom, 8)
 
@@ -63,11 +64,11 @@ struct GasTrendCard: View {
 
                     // Trend line
                     TrendLineShape(data: trendData, horizontalInset: chartInset)
-                        .stroke(.orange, lineWidth: 2.5)
+                        .stroke(statusColor, lineWidth: 2.5)
 
                     // End dot
                     Circle()
-                        .fill(.orange)
+                        .fill(statusColor)
                         .frame(width: 12, height: 12)
                         .position(
                             x: chartInset + drawableWidth,
@@ -170,7 +171,8 @@ struct TrendLineShape: Shape {
                 HourMark(position: 0.111, label: "12:00"),
                 HourMark(position: 0.444, label: "13:00"),
                 HourMark(position: 0.778, label: "14:00")
-            ]
+            ],
+            statusColor: StatusColor.color(for: "SEVERE")
         )
         .padding(.horizontal, 24)
         Spacer()

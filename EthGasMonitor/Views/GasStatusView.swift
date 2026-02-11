@@ -13,6 +13,11 @@ struct GasStatusView: View {
     let statusMessage: String
     let congestionPercent: Int
 
+    // MARK: - Status Colors
+    private var statusColor: Color {
+        StatusColor.color(for: statusMessage)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Info badge - bordered pill
@@ -29,7 +34,7 @@ struct GasStatusView: View {
             // Large status name - the hero element
             Text(statusMessage)
                 .font(.system(size: 56, weight: .heavy, design: .monospaced))
-                .foregroundStyle(.orange)
+                .foregroundStyle(statusColor)
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)

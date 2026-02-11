@@ -10,6 +10,7 @@ import SwiftUI
 struct TransactionCostsCard: View {
     // MARK: - Input
     let selectedSpeed: GasSpeed
+    let statusColor: Color
 
     // MARK: - Computed Costs (based on speed)
     private var transferCost: Double {
@@ -48,7 +49,7 @@ struct TransactionCostsCard: View {
                 .frame(width: 1)
 
             // Swap column
-            CostColumn(label: "SWAP", cost: swapCost, costColor: .orange)
+            CostColumn(label: "SWAP", cost: swapCost, costColor: statusColor)
 
             // Divider
             Rectangle()
@@ -105,7 +106,7 @@ struct CostColumn: View {
 
 #Preview {
     VStack {
-        TransactionCostsCard(selectedSpeed: .fast)
+        TransactionCostsCard(selectedSpeed: .fast, statusColor: StatusColor.color(for: "SEVERE"))
             .padding(.horizontal, 16)
         Spacer()
     }

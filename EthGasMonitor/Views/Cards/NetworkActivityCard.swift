@@ -10,6 +10,7 @@ import SwiftUI
 struct NetworkActivityCard: View {
     // MARK: - Properties
     let networkData: NetworkData
+    let statusColor: Color
 
     // MARK: - Computed Properties
     private var context: NetworkContext? {
@@ -21,7 +22,7 @@ struct NetworkActivityCard: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(context.title)
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(statusColor)
 
                 Text(context.reason)
                     .font(.system(size: 12, weight: .regular, design: .monospaced))
@@ -62,7 +63,7 @@ struct NetworkActivityCard: View {
 
 #Preview("Network Congestion") {
     VStack {
-        NetworkActivityCard(networkData: .congestedNetwork)
+        NetworkActivityCard(networkData: .congestedNetwork, statusColor: StatusColor.color(for: "SEVERE"))
             .padding(.horizontal, 24)
         Spacer()
     }
@@ -72,7 +73,7 @@ struct NetworkActivityCard: View {
 
 #Preview("Gas Surging") {
     VStack {
-        NetworkActivityCard(networkData: .surgingGas)
+        NetworkActivityCard(networkData: .surgingGas, statusColor: StatusColor.color(for: "COSTLY"))
             .padding(.horizontal, 24)
         Spacer()
     }
@@ -82,7 +83,7 @@ struct NetworkActivityCard: View {
 
 #Preview("Gas Dropping") {
     VStack {
-        NetworkActivityCard(networkData: .droppingGas)
+        NetworkActivityCard(networkData: .droppingGas, statusColor: StatusColor.color(for: "ACCEPTABLE"))
             .padding(.horizontal, 24)
         Spacer()
     }
@@ -92,7 +93,7 @@ struct NetworkActivityCard: View {
 
 #Preview("Optimal Weekend") {
     VStack {
-        NetworkActivityCard(networkData: .optimalWeekend)
+        NetworkActivityCard(networkData: .optimalWeekend, statusColor: StatusColor.color(for: "OPTIMAL"))
             .padding(.horizontal, 24)
         Spacer()
     }
@@ -100,11 +101,9 @@ struct NetworkActivityCard: View {
     .background(.white)
 }
 
-#Preview("Normal Activity (Hidden)") {
+#Preview("Normal Activity") {
     VStack {
-        Text("Card should not appear below:")
-            .font(.system(size: 12, design: .monospaced))
-        NetworkActivityCard(networkData: .normalActivity)
+        NetworkActivityCard(networkData: .normalActivity, statusColor: StatusColor.color(for: "ACCEPTABLE"))
             .padding(.horizontal, 24)
         Spacer()
     }

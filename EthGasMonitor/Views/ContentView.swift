@@ -29,6 +29,10 @@ struct ContentView: View {
         }
     }
 
+    private var statusColor: Color {
+        StatusColor.color(for: statusMessage)
+    }
+
     // MARK: - Network Data (mock for now, will be API-driven)
     private var networkData: NetworkData {
         // TODO: Replace with real API data
@@ -68,7 +72,7 @@ struct ContentView: View {
                         .padding(.bottom, 96)
 
                     // Transaction costs card
-                    TransactionCostsCard(selectedSpeed: selectedSpeed)
+                    TransactionCostsCard(selectedSpeed: selectedSpeed, statusColor: statusColor)
                         .padding(.horizontal, 24)
 
                     // Gas trend card
@@ -80,7 +84,8 @@ struct ContentView: View {
                             HourMark(position: 0.111, label: "12:00"),
                             HourMark(position: 0.444, label: "13:00"),
                             HourMark(position: 0.778, label: "14:00")
-                        ]
+                        ],
+                        statusColor: statusColor
                     )
                         .padding(.horizontal, 24)
                         .padding(.top, 32)
@@ -96,7 +101,7 @@ struct ContentView: View {
                     HStack(spacing: 12) {
                         BestWindowCard()
 
-                        NetworkActivityCard(networkData: networkData)
+                        NetworkActivityCard(networkData: networkData, statusColor: statusColor)
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 32)
@@ -105,19 +110,9 @@ struct ContentView: View {
             }
 
             // Floating speed toggle
-            VStack(spacing: 0) {
-                LinearGradient(
-                    colors: [.white.opacity(0), .white],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 24)
-
-                SpeedToggleView(selectedSpeed: $selectedSpeed)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 16)
-                    .background(.white)
-            }
+            SpeedToggleView(selectedSpeed: $selectedSpeed)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
         }
     }
 }
