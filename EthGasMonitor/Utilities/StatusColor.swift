@@ -13,7 +13,7 @@ enum StatusColor {
         case "OPTIMAL":
             return Color(red: 0x00/255, green: 0xC8/255, blue: 0x53/255)  // #00C853
         case "ACCEPTABLE":
-            return Color(red: 0x00/255, green: 0xBC/255, blue: 0xD4/255)  // #00BCD4
+            return Color(red: 0x00/255, green: 0xD4/255, blue: 0xFF/255)  // #00D4FF - more vibrant cyan
         case "COSTLY":
             return Color(red: 0xFF/255, green: 0x6D/255, blue: 0x00/255)  // #FF6D00
         case "SEVERE":

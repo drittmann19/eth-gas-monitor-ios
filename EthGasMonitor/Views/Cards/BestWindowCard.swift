@@ -19,12 +19,14 @@ struct BestWindowCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Start time
-            (Text(startTime)
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundColor(.black)
-            + Text(" \(timezoneAbbreviation)")
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                .foregroundColor(.gray))
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(startTime)
+                    .font(.system(size: 28, weight: .bold, design: .monospaced))
+                    .foregroundColor(.black)
+                Text(timezoneAbbreviation)
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .foregroundColor(.gray)
+            }
 
             // TO label
             Text("TO")
@@ -32,12 +34,14 @@ struct BestWindowCard: View {
                 .foregroundStyle(.gray)
 
             // End time
-            (Text(endTime)
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
-                .foregroundColor(.black)
-            + Text(" \(timezoneAbbreviation)")
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                .foregroundColor(.gray))
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(endTime)
+                    .font(.system(size: 28, weight: .bold, design: .monospaced))
+                    .foregroundColor(.black)
+                Text(timezoneAbbreviation)
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .foregroundColor(.gray)
+            }
 
             Spacer(minLength: 0)
 

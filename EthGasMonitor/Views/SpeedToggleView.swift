@@ -7,11 +7,12 @@
 
 import SwiftUI
 
-// Enum for the three speed options
+// Enum for the speed options
 enum GasSpeed: String, CaseIterable {
     case slow = "SLOW"
     case standard = "STANDARD"
     case fast = "FAST"
+    case test = "TEST"
 }
 
 struct SpeedToggleView: View {

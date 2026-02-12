@@ -10,6 +10,10 @@ import SwiftUI
 struct ContentView: View {
     // MARK: - State
     @State private var selectedSpeed: GasSpeed = .fast
+    @State private var testStatusIndex: Int = 0
+
+    // Test status options
+    private let testStatuses = ["OPTIMAL", "ACCEPTABLE", "COSTLY", "SEVERE"]
 
     // MARK: - Computed Properties
     private var gweiValue: Double {
@@ -17,10 +21,14 @@ struct ContentView: View {
         case .slow: return 8.0
         case .standard: return 12.0
         case .fast: return 128.5
+        case .test: return 0 // Not used in test mode
         }
     }
 
     private var statusMessage: String {
+        if selectedSpeed == .test {
+            return testStatuses[testStatusIndex]
+        }
         switch gweiValue {
         case ..<8: return "OPTIMAL"
         case 8..<20: return "ACCEPTABLE"
@@ -45,6 +53,9 @@ struct ContentView: View {
             // Background color - white like the design
             Color.white
                 .ignoresSafeArea()
+
+            // Animated wave grid background
+            WaveGridBackground(statusMessage: statusMessage)
 
             // Scrollable content
             ScrollView(.vertical, showsIndicators: false) {
@@ -100,6 +111,34 @@ struct ContentView: View {
             // Floating speed toggle
             VStack {
                 Spacer()
+
+                // Test status picker (only visible in test mode)
+                if selectedSpeed == .test {
+                    HStack(spacing: 8) {
+                        ForEach(0..<testStatuses.count, id: \.self) { index in
+                            Button {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                    testStatusIndex = index
+                                }
+                            } label: {
+                                Text(testStatuses[index])
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .fill(testStatusIndex == index ?
+                                                  StatusColor.color(for: testStatuses[index]) :
+                                                  Color(white: 0.9))
+                                    )
+                                    .foregroundStyle(testStatusIndex == index ? .white : .black)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.bottom, 12)
+                }
+
                 SpeedToggleView(selectedSpeed: $selectedSpeed)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 16)
