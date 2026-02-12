@@ -144,25 +144,33 @@ struct ContentView: View {
                     .padding(.bottom, 16)
             }
 
-            // Sticky header
-            VStack(spacing: 0) {
+            // Sticky floating header pill
+            VStack {
                 HStack {
-                    Rectangle()
-                        .fill(.black)
-                        .frame(width: 16, height: 16)
-                    Text("ETH MAINNET")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
-                        .tracking(2)
+                    HStack(spacing: 8) {
+                        Rectangle()
+                            .fill(.black)
+                            .frame(width: 12, height: 12)
+                        Text("ETH MAINNET")
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .tracking(1)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(.thickMaterial)
+                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
+                    )
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(.white.opacity(0.3), lineWidth: 0.5)
+                    )
+
                     Spacer()
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 16)
                 .padding(.top, 8)
-                .padding(.bottom, 12)
-                .frame(maxWidth: .infinity)
-                .background(
-                    Color.white
-                        .ignoresSafeArea(edges: .top)
-                )
 
                 Spacer()
             }
