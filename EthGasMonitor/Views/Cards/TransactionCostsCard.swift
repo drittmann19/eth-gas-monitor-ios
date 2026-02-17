@@ -11,31 +11,32 @@ struct TransactionCostsCard: View {
     // MARK: - Input
     let selectedSpeed: GasSpeed
     let statusColor: Color
+    var slowGwei: Double = 8
+    var standardGwei: Double = 12
+    var fastGwei: Double = 128.5
+    var ethUsdPrice: Double = 2500
 
-    // MARK: - Computed Costs (based on speed)
-    private var transferCost: Double {
+    // MARK: - Gas Unit Constants (Ethereum protocol values)
+    private let transferGas: Double = 21_000
+    private let swapGas: Double = 130_000
+    private let mintGas: Double = 265_000
+
+    // MARK: - Computed Costs
+    private var activeGwei: Double {
         switch selectedSpeed {
-        case .slow: return 0.40
-        case .standard, .test: return 0.60
-        case .fast: return 6.50
+        case .slow: return slowGwei
+        case .standard, .test: return standardGwei
+        case .fast: return fastGwei
         }
     }
 
-    private var swapCost: Double {
-        switch selectedSpeed {
-        case .slow: return 2.60
-        case .standard, .test: return 3.90
-        case .fast: return 42.00
-        }
+    private func costUsd(gasUnits: Double) -> Double {
+        gasUnits * activeGwei * 1e-9 * ethUsdPrice
     }
 
-    private var mintCost: Double {
-        switch selectedSpeed {
-        case .slow: return 5.30
-        case .standard, .test: return 7.90
-        case .fast: return 85.00
-        }
-    }
+    private var transferCost: Double { costUsd(gasUnits: transferGas) }
+    private var swapCost: Double { costUsd(gasUnits: swapGas) }
+    private var mintCost: Double { costUsd(gasUnits: mintGas) }
 
     var body: some View {
         // Card content
@@ -96,7 +97,7 @@ struct CostColumn: View {
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(.gray)
 
-            Text(String(format: "$%.2f", cost))
+            Text(cost < 0.01 ? "< $0.01" : String(format: "$%.2f", cost))
                 .font(.system(size: 18, weight: .bold, design: .monospaced))
                 .foregroundStyle(costColor)
         }

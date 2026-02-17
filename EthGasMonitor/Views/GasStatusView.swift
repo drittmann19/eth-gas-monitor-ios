@@ -18,10 +18,15 @@ struct GasStatusView: View {
         StatusColor.color(for: statusMessage)
     }
 
+    private func formatGwei(_ value: Double) -> String {
+        if value >= 100 { return String(format: "%.0f", value) }
+        return String(format: "%.3f", value)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Info badge - bordered pill
-            Text(String(format: "%.1f GWEI | CONGESTION %d%%", gweiValue, congestionPercent))
+            Text(String(format: "%@ GWEI | CONGESTION %d%%", formatGwei(gweiValue), congestionPercent))
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .tracking(1)
                 .padding(.horizontal, 8)

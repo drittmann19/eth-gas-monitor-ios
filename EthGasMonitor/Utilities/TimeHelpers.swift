@@ -48,4 +48,13 @@ enum TimeHelpers {
 
         return hour >= 0 && hour < 6
     }
+
+    /// Returns a human-readable relative time string for Best Window display
+    static func relativeTimeLabel(from now: Date, to future: Date) -> String {
+        let minutes = Int(future.timeIntervalSince(now) / 60)
+        if minutes <= 15 { return "NOW" }
+        if minutes < 60 { return "IN \(minutes) MIN" }
+        let hours = minutes / 60
+        return "IN \(hours) HOUR\(hours == 1 ? "" : "S")"
+    }
 }

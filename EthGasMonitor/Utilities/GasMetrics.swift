@@ -40,4 +40,14 @@ enum GasMetrics {
 
         return duration
     }
+
+    /// Calculates standard deviation of gas prices over the last N minutes
+    /// Used for confidence band width in forecasting
+    static func standardDeviation(_ prices: [Double], lastN: Int = 120) -> Double {
+        let slice = Array(prices.suffix(lastN))
+        guard slice.count > 1 else { return 0 }
+        let mean = slice.reduce(0, +) / Double(slice.count)
+        let variance = slice.map { ($0 - mean) * ($0 - mean) }.reduce(0, +) / Double(slice.count - 1)
+        return sqrt(variance)
+    }
 }

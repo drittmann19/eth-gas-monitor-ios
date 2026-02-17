@@ -9,9 +9,9 @@ import SwiftUI
 
 struct GasAveragesCard: View {
     // MARK: - Properties
-    let cost1d: Double
-    let cost3d: Double
-    let cost7d: Double
+    let cost1d: Double?
+    let cost3d: Double?
+    let cost7d: Double?
 
     var body: some View {
         HStack(spacing: 0) {
@@ -57,7 +57,7 @@ struct GasAveragesCard: View {
 // MARK: - Average Column Component
 struct AverageColumn: View {
     let period: String
-    let cost: Double
+    let cost: Double?
 
     var body: some View {
         VStack(spacing: 4) {
@@ -65,9 +65,15 @@ struct AverageColumn: View {
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(.gray)
 
-            Text(String(format: "$%.2f", cost))
-                .font(.system(size: 18, weight: .bold, design: .monospaced))
-                .foregroundStyle(.black)
+            if let cost = cost {
+                Text(String(format: "$%.2f", cost))
+                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .foregroundStyle(.black)
+            } else {
+                Text("--")
+                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .foregroundStyle(.black.opacity(0.3))
+            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -76,7 +82,7 @@ struct AverageColumn: View {
 #Preview {
     VStack {
         GasAveragesCard(
-            cost1d: 3.90, cost3d: 2.85, cost7d: 2.40
+            cost1d: 3.90, cost3d: 2.85, cost7d: nil
         )
         .padding(.horizontal, 24)
         Spacer()

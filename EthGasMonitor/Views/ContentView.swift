@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     // MARK: - State
+    @StateObject private var gasManager = GasDataManager()
     @State private var selectedSpeed: GasSpeed = .fast
     @State private var testStatusIndex: Int = 0
 
@@ -18,10 +19,10 @@ struct ContentView: View {
     // MARK: - Computed Properties
     private var gweiValue: Double {
         switch selectedSpeed {
-        case .slow: return 8.0
-        case .standard: return 12.0
-        case .fast: return 128.5
-        case .test: return 0 // Not used in test mode
+        case .slow: return gasManager.slowGwei
+        case .standard: return gasManager.standardGwei
+        case .fast: return gasManager.fastGwei
+        case .test: return 0
         }
     }
 
@@ -41,11 +42,48 @@ struct ContentView: View {
         StatusColor.color(for: statusMessage)
     }
 
-    // MARK: - Network Data (mock for now, will be API-driven)
+    // MARK: - Network Data
     private var networkData: NetworkData {
-        // TODO: Replace with real API data
-        // Using congested network mock for demo
-        NetworkData.congestedNetwork
+        gasManager.networkData
+    }
+
+    // MARK: - Forecast
+    private var forecast: GasForecast {
+        GasForecastEngine.generateForecast(
+            currentGwei: gweiValue,
+            gasPrices24h: networkData.gasPrices24h,
+            hourlyBaselines: networkData.hourlyBaselines,
+            currentTime: networkData.timeUTC,
+            dayOfWeek: networkData.dayOfWeek
+        )
+    }
+
+    private var updatedText: String {
+        if let error = gasManager.errorMessage {
+            return error
+        }
+        guard let lastUpdated = gasManager.lastUpdated else {
+            return "CONNECTING..."
+        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yy HH:mm"
+        return "UPDATED: \(formatter.string(from: lastUpdated))"
+    }
+
+    private func generateHourMarks(for currentTime: Date) -> [HourMark] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        formatter.timeZone = .current
+
+        var marks: [HourMark] = []
+        let calendar = Calendar.current
+        for hourOffset in [-2, -1, 1, 2] {
+            if let time = calendar.date(byAdding: .hour, value: hourOffset, to: currentTime) {
+                let position = CGFloat(hourOffset + 2) / 4.0
+                marks.append(HourMark(position: position, label: formatter.string(from: time)))
+            }
+        }
+        return marks
     }
 
     var body: some View {
@@ -57,55 +95,77 @@ struct ContentView: View {
             // Animated wave grid background
             WaveGridBackground(statusMessage: statusMessage)
 
-            // Scrollable content
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 0) {
-                    // Hero gas display
-                    GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage, congestionPercent: 88)
-                        .padding(.top, 136)
-
-                    // Metadata row
-                    Text("UPDATED: 00:00:12")
-                        .font(.system(size: 11, weight: .regular, design: .monospaced))
+            if gasManager.isLoading {
+                // Loading state
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                    Text("FETCHING GAS DATA...")
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 96)
-
-                    // Transaction costs card
-                    TransactionCostsCard(selectedSpeed: selectedSpeed, statusColor: statusColor)
-                        .padding(.horizontal, 24)
-
-                    // Gas trend card
-                    GasTrendCard(
-                        trendData: [0.30, 0.28, 0.32, 0.35, 0.33, 0.40, 0.45, 0.42, 0.50, 0.55, 0.62, 0.70],
-                        changePercent: "+45%",
-                        trendLabel: "SURGING",
-                        hourMarks: [
-                            HourMark(position: 0.111, label: "12:00"),
-                            HourMark(position: 0.444, label: "13:00"),
-                            HourMark(position: 0.778, label: "14:00")
-                        ],
-                        statusColor: statusColor
-                    )
-                        .padding(.horizontal, 24)
-                        .padding(.top, 32)
-
-                    // Swap averages card
-                    GasAveragesCard(
-                        cost1d: 3.90, cost3d: 2.85, cost7d: 2.40
-                    )
-                        .padding(.horizontal, 24)
-                        .padding(.top, 32)
-
-                    // Best window + Network status (side by side)
-                    HStack(spacing: 12) {
-                        BestWindowCard()
-
-                        NetworkActivityCard(networkData: networkData, statusColor: statusColor)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 32)
                 }
-                .padding(.bottom, 100)
+            } else {
+                // Scrollable content
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        // Hero gas display
+                        GasStatusView(gweiValue: gweiValue, statusMessage: statusMessage, congestionPercent: gasManager.congestionPercent)
+                            .padding(.top, 136)
+
+                        // Metadata row
+                        Text(updatedText)
+                            .font(.system(size: 11, weight: .regular, design: .monospaced))
+                            .foregroundStyle(gasManager.errorMessage != nil ? .red : .secondary)
+                            .padding(.bottom, 96)
+
+                        // Transaction costs card
+                        TransactionCostsCard(
+                            selectedSpeed: selectedSpeed,
+                            statusColor: statusColor,
+                            slowGwei: gasManager.slowGwei,
+                            standardGwei: gasManager.standardGwei,
+                            fastGwei: gasManager.fastGwei,
+                            ethUsdPrice: gasManager.ethUsdPrice
+                        )
+                            .padding(.horizontal, 24)
+
+                        // Gas trend card with forecast
+                        GasTrendCard(
+                            historicalData: forecast.historicalNormalized,
+                            forecastData: forecast.forecastNormalized,
+                            confidenceLow: forecast.confidenceLowNormalized,
+                            confidenceHigh: forecast.confidenceHighNormalized,
+                            changePercent: forecast.changePercent,
+                            trendLabel: forecast.trendLabel,
+                            hourMarks: generateHourMarks(for: networkData.timeUTC),
+                            statusColor: statusColor
+                        )
+                            .padding(.horizontal, 24)
+                            .padding(.top, 32)
+
+                        // Swap averages card
+                        GasAveragesCard(
+                            cost1d: gasManager.averageSwapCost(days: 1),
+                            cost3d: gasManager.averageSwapCost(days: 3),
+                            cost7d: gasManager.averageSwapCost(days: 7)
+                        )
+                            .padding(.horizontal, 24)
+                            .padding(.top, 32)
+
+                        // Best window + Network status (side by side)
+                        HStack(spacing: 12) {
+                            BestWindowCard(
+                                predictedWindow: forecast.bestWindow,
+                                statusColor: statusColor
+                            )
+
+                            NetworkActivityCard(networkData: networkData, statusColor: statusColor)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 32)
+                    }
+                    .padding(.bottom, 100)
+                }
             }
 
             // Floating speed toggle
@@ -174,6 +234,12 @@ struct ContentView: View {
 
                 Spacer()
             }
+        }
+        .task {
+            gasManager.startPolling()
+        }
+        .onDisappear {
+            gasManager.stopPolling()
         }
     }
 }
