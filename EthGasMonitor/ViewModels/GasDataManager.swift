@@ -80,6 +80,7 @@ class GasDataManager: ObservableObject {
                 await fetchFeeHistory()
             }
         }
+
     }
 
     func stopPolling() {
@@ -291,7 +292,7 @@ class GasDataManager: ObservableObject {
             baselines = hourlyBaselines
         } else {
             let medianPrice = median(Array(gasPriceHistory.suffix(60)))
-            baselines = NetworkData.generateMockBaselines(baseLevel: max(8, medianPrice))
+            baselines = NetworkData.generateMockBaselines(baseLevel: max(medianPrice, 0.01))
         }
 
         networkData = NetworkData(
@@ -338,23 +339,11 @@ class GasDataManager: ObservableObject {
         hourlyAccumulator[slot] = samples
 
         // Rebuild baselines from accumulator
-        var newBaselines = hourlyBaselines.count == 168 ? hourlyBaselines : NetworkData.generateMockBaselines(baseLevel: 15)
+        var newBaselines = hourlyBaselines.count == 168 ? hourlyBaselines : NetworkData.generateMockBaselines(baseLevel: recentAvg)
         for (s, vals) in hourlyAccumulator where !vals.isEmpty {
             newBaselines[s] = vals.reduce(0, +) / Double(vals.count)
         }
         hourlyBaselines = newBaselines
-    }
-
-    // MARK: - Swap Averages
-
-    func averageSwapCost(days: Int) -> Double? {
-        let minutesNeeded = days * 1440
-        guard gasPriceHistory.count >= minutesNeeded else { return nil }
-
-        let slice = Array(gasPriceHistory.suffix(minutesNeeded))
-        let avgGwei = slice.reduce(0, +) / Double(slice.count)
-        let swapGasUnits: Double = 130_000
-        return avgGwei * swapGasUnits * 1e-9 * ethUsdPrice
     }
 
     // MARK: - Persistence
@@ -362,13 +351,13 @@ class GasDataManager: ObservableObject {
     private func loadPersistedState() {
         let defaults = UserDefaults.standard
 
-        if let data = defaults.data(forKey: "hourlyBaselines_v1"),
+        if let data = defaults.data(forKey: "hourlyBaselines_v2"),
            let decoded = try? JSONDecoder().decode([Double].self, from: data),
            decoded.count == 168 {
             hourlyBaselines = decoded
         }
 
-        if let data = defaults.data(forKey: "hourlyAccumulator_v1"),
+        if let data = defaults.data(forKey: "hourlyAccumulator_v2"),
            let decoded = try? JSONDecoder().decode([String: [Double]].self, from: data) {
             hourlyAccumulator = Dictionary(uniqueKeysWithValues: decoded.compactMap { key, value in
                 guard let intKey = Int(key) else { return nil }
@@ -398,12 +387,12 @@ class GasDataManager: ObservableObject {
 
         if hourlyBaselines.count == 168,
            let data = try? encoder.encode(hourlyBaselines) {
-            defaults.set(data, forKey: "hourlyBaselines_v1")
+            defaults.set(data, forKey: "hourlyBaselines_v2")
         }
 
         let stringKeyedAccumulator = Dictionary(uniqueKeysWithValues: hourlyAccumulator.map { ("\($0.key)", $0.value) })
         if let data = try? encoder.encode(stringKeyedAccumulator) {
-            defaults.set(data, forKey: "hourlyAccumulator_v1")
+            defaults.set(data, forKey: "hourlyAccumulator_v2")
         }
 
         if let data = try? encoder.encode(gasPriceHistory) {

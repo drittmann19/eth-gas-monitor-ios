@@ -102,14 +102,14 @@ enum GasForecastEngine {
             dayOfWeek: dayOfWeek
         )
 
-        // Compute trend label from recent spike
-        let spikePercent = GasMetrics.calculateRecentSpike(gasPrices24h)
-        let changePercent = String(format: "%+.0f%%", spikePercent)
+        // Compute trend from the 2-hour window visible on the chart
+        let trendPercent = calculateChartTrend(historical)
+        let changePercent = String(format: "%+.0f%%", trendPercent)
         let trendLabel: String
-        if spikePercent > 30 { trendLabel = "SURGING" }
-        else if spikePercent > 10 { trendLabel = "RISING" }
-        else if spikePercent < -30 { trendLabel = "DROPPING" }
-        else if spikePercent < -10 { trendLabel = "FALLING" }
+        if trendPercent > 30 { trendLabel = "SURGING" }
+        else if trendPercent > 10 { trendLabel = "RISING" }
+        else if trendPercent < -30 { trendLabel = "DROPPING" }
+        else if trendPercent < -10 { trendLabel = "FALLING" }
         else { trendLabel = "STABLE" }
 
         return GasForecast(
@@ -123,6 +123,16 @@ enum GasForecastEngine {
             changePercent: changePercent,
             trendLabel: trendLabel
         )
+    }
+
+    // MARK: - Chart Trend (matches visible 2-hour window)
+
+    private static func calculateChartTrend(_ historical: [Double]) -> Double {
+        guard historical.count >= 2 else { return 0 }
+        let start = historical.first!
+        let end = historical.last!
+        guard start > 0 else { return 0 }
+        return (((end - start) / start) * 100).rounded()
     }
 
     // MARK: - Layer 1: Time-of-day baseline

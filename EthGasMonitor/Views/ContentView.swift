@@ -143,15 +143,6 @@ struct ContentView: View {
                             .padding(.horizontal, 24)
                             .padding(.top, 32)
 
-                        // Swap averages card
-                        GasAveragesCard(
-                            cost1d: gasManager.averageSwapCost(days: 1),
-                            cost3d: gasManager.averageSwapCost(days: 3),
-                            cost7d: gasManager.averageSwapCost(days: 7)
-                        )
-                            .padding(.horizontal, 24)
-                            .padding(.top, 32)
-
                         // Best window + Network status (side by side)
                         HStack(spacing: 12) {
                             BestWindowCard(
