@@ -12,7 +12,6 @@ enum GasSpeed: String, CaseIterable {
     case slow = "SLOW"
     case standard = "STANDARD"
     case fast = "FAST"
-    case test = "TEST"
 }
 
 struct SpeedToggleView: View {

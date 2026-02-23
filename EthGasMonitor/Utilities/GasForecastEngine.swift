@@ -98,8 +98,7 @@ enum GasForecastEngine {
         // Find best transaction window
         let bestWindow = findBestWindow(
             hourlyBaselines: hourlyBaselines,
-            currentTime: currentTime,
-            dayOfWeek: dayOfWeek
+            currentTime: currentTime
         )
 
         // Compute trend from the 2-hour window visible on the chart
@@ -213,8 +212,7 @@ enum GasForecastEngine {
 
     static func findBestWindow(
         hourlyBaselines: [Double],
-        currentTime: Date,
-        dayOfWeek: Int
+        currentTime: Date
     ) -> PredictedWindow {
         guard hourlyBaselines.count == 168 else {
             return PredictedWindow(

@@ -160,6 +160,7 @@ class GasDataManager: ObservableObject {
             let price = try await EthereumService.fetchGasPrice()
             appendToHistory(price)
             rebuildNetworkData()
+            logAndValidatePrediction()
             lastUpdated = Date()
             errorMessage = nil
             consecutiveFailures = 0
@@ -409,6 +410,40 @@ class GasDataManager: ObservableObject {
         guard now.timeIntervalSince(lastPersistDate) > 75 else { return }
         lastPersistDate = now
         persistState()
+    }
+
+    // MARK: - Prediction Logging
+
+    private func logAndValidatePrediction() {
+        let currentGwei = standardGwei
+        guard currentGwei > 0 else { return }
+
+        // Validate any matured predictions against current price
+        PredictionLogger.shared.checkMatured(actualGwei: currentGwei)
+
+        // Compute trendLabel from last 2 hours of history (mirrors GasForecastEngine)
+        let recent120 = Array(gasPriceHistory.suffix(120))
+        guard recent120.count >= 2, let start = recent120.first, start > 0 else { return }
+        let trendPercent = ((recent120.last! - start) / start * 100).rounded()
+        let trendLabel: String
+        if trendPercent > 30 { trendLabel = "SURGING" }
+        else if trendPercent > 10 { trendLabel = "RISING" }
+        else if trendPercent < -30 { trendLabel = "DROPPING" }
+        else if trendPercent < -10 { trendLabel = "FALLING" }
+        else { trendLabel = "STABLE" }
+
+        // Compute 30-min blended forecast using the engine's public methods
+        let recentPrices = Array(gasPriceHistory.suffix(60))
+        let futureTime = Date().addingTimeInterval(1800)
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let futureDayOfWeek = calendar.component(.weekday, from: futureTime) - 1
+
+        let momentum30 = GasForecastEngine.trendProjection(gasPricesRecent: recentPrices, minutesForward: 30)
+        let baseline30 = GasForecastEngine.hourlyBaseline(at: futureTime, dayOfWeek: futureDayOfWeek, baselines: networkData.hourlyBaselines)
+        let predicted30 = GasForecastEngine.blendedForecast(trendProjection: momentum30, hourlyBaseline: baseline30, minutesForward: 30)
+
+        PredictionLogger.shared.maybeLog(currentGwei: currentGwei, predictedGwei30min: predicted30, trendLabel: trendLabel)
     }
 
     // MARK: - Helpers

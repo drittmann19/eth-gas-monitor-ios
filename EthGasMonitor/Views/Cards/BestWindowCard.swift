@@ -12,22 +12,23 @@ struct BestWindowCard: View {
     let predictedWindow: PredictedWindow
     let statusColor: Color
 
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        f.timeZone = .current
+        return f
+    }()
+
     private var timezoneAbbreviation: String {
         TimeZone.current.abbreviation() ?? "UTC"
     }
 
     private var startTimeFormatted: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        formatter.timeZone = TimeZone.current
-        return formatter.string(from: predictedWindow.startDate)
+        Self.timeFormatter.string(from: predictedWindow.startDate)
     }
 
     private var endTimeFormatted: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        formatter.timeZone = TimeZone.current
-        return formatter.string(from: predictedWindow.endDate)
+        Self.timeFormatter.string(from: predictedWindow.endDate)
     }
 
     var body: some View {

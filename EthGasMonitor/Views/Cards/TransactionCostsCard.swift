@@ -25,7 +25,7 @@ struct TransactionCostsCard: View {
     private var activeGwei: Double {
         switch selectedSpeed {
         case .slow: return slowGwei
-        case .standard, .test: return standardGwei
+        case .standard: return standardGwei
         case .fast: return fastGwei
         }
     }

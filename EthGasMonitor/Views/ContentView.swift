@@ -11,25 +11,16 @@ struct ContentView: View {
     // MARK: - State
     @StateObject private var gasManager = GasDataManager()
     @State private var selectedSpeed: GasSpeed = .fast
-    @State private var testStatusIndex: Int = 0
-
-    // Test status options
-    private let testStatuses = ["OPTIMAL", "ACCEPTABLE", "COSTLY", "SEVERE"]
-
     // MARK: - Computed Properties
     private var gweiValue: Double {
         switch selectedSpeed {
         case .slow: return gasManager.slowGwei
         case .standard: return gasManager.standardGwei
         case .fast: return gasManager.fastGwei
-        case .test: return 0
         }
     }
 
     private var statusMessage: String {
-        if selectedSpeed == .test {
-            return testStatuses[testStatusIndex]
-        }
         switch gweiValue {
         case ..<8: return "OPTIMAL"
         case 8..<20: return "ACCEPTABLE"
@@ -70,17 +61,20 @@ struct ContentView: View {
         return "UPDATED: \(formatter.string(from: lastUpdated))"
     }
 
-    private func generateHourMarks(for currentTime: Date) -> [HourMark] {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        formatter.timeZone = .current
+    private static let hourMarkFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        f.timeZone = .current
+        return f
+    }()
 
+    private func generateHourMarks(for currentTime: Date) -> [HourMark] {
         var marks: [HourMark] = []
         let calendar = Calendar.current
         for hourOffset in [-2, -1, 1, 2] {
             if let time = calendar.date(byAdding: .hour, value: hourOffset, to: currentTime) {
                 let position = CGFloat(hourOffset + 2) / 4.0
-                marks.append(HourMark(position: position, label: formatter.string(from: time)))
+                marks.append(HourMark(position: position, label: Self.hourMarkFormatter.string(from: time)))
             }
         }
         return marks
@@ -162,33 +156,6 @@ struct ContentView: View {
             // Floating speed toggle
             VStack {
                 Spacer()
-
-                // Test status picker (only visible in test mode)
-                if selectedSpeed == .test {
-                    HStack(spacing: 8) {
-                        ForEach(0..<testStatuses.count, id: \.self) { index in
-                            Button {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                    testStatusIndex = index
-                                }
-                            } label: {
-                                Text(testStatuses[index])
-                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                            .fill(testStatusIndex == index ?
-                                                  StatusColor.color(for: testStatuses[index]) :
-                                                  Color(white: 0.9))
-                                    )
-                                    .foregroundStyle(testStatusIndex == index ? .white : .black)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.bottom, 12)
-                }
 
                 SpeedToggleView(selectedSpeed: $selectedSpeed)
                     .padding(.horizontal, 24)
