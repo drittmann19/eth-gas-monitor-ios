@@ -91,14 +91,7 @@ struct GasTrendCard: View {
                     )
                     .stroke(statusColor, lineWidth: 2.5)
 
-                    // Forecast line (dashed, right half)
-                    TrendLineShape(
-                        data: forecastData,
-                        horizontalInset: chartInset,
-                        startProportion: 0.5,
-                        endProportion: 1.0
-                    )
-                    .stroke(statusColor, style: StrokeStyle(lineWidth: 2.5, dash: [6, 4]))
+
 
                     // NOW dot at center
                     Circle()

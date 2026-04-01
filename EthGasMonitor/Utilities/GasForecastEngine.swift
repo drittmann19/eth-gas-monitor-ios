@@ -83,14 +83,17 @@ enum GasForecastEngine {
             ))
         }
 
-        // Ensure first forecast point matches current price for seamless connection
-        let adjustedFirst = ForecastPoint(
+        // Anchor first forecast point to the last historical price.
+        // Give it a small initial band width so the confidence region is visually
+        // anchored at the NOW marker rather than appearing to start to the right.
+        let anchorGwei = historical.last ?? currentGwei
+        let initialHalfWidth = max(0.3, stdDev * 0.25)
+        forecastPoints[0] = ForecastPoint(
             minutesFromNow: 0,
-            predictedGwei: currentGwei,
-            confidenceLow: currentGwei,
-            confidenceHigh: currentGwei
+            predictedGwei: anchorGwei,
+            confidenceLow: max(0.001, anchorGwei - initialHalfWidth),
+            confidenceHigh: anchorGwei + initialHalfWidth
         )
-        forecastPoints[0] = adjustedFirst
 
         // Normalize everything on a shared scale
         let normalized = normalize(historical: historical, forecast: forecastPoints)
@@ -127,9 +130,7 @@ enum GasForecastEngine {
     // MARK: - Chart Trend (matches visible 2-hour window)
 
     private static func calculateChartTrend(_ historical: [Double]) -> Double {
-        guard historical.count >= 2 else { return 0 }
-        let start = historical.first!
-        let end = historical.last!
+        guard historical.count >= 2, let start = historical.first, let end = historical.last else { return 0 }
         guard start > 0 else { return 0 }
         return (((end - start) / start) * 100).rounded()
     }
@@ -170,7 +171,7 @@ enum GasForecastEngine {
         }
 
         let weightedAvg = weightedSum / weightTotal
-        let current = gasPricesRecent.last!
+        guard let current = gasPricesRecent.last else { return weightedAvg }
 
         // Slope: difference between current and weighted average, projected forward
         let slope = (current - weightedAvg) / Double(gasPricesRecent.count)
@@ -188,7 +189,7 @@ enum GasForecastEngine {
         let baselineWeight = 1.0 - momentumWeight
 
         let blended = momentumWeight * trendProjection + baselineWeight * hourlyBaseline
-        return max(1.0, blended)
+        return max(0.001, blended)
     }
 
     // MARK: - Confidence band
@@ -199,11 +200,11 @@ enum GasForecastEngine {
         }
 
         // Width grows with sqrt of time, scaled by recent volatility
-        let baseUncertainty = max(1.0, recentStdDev * 0.5)
+        let baseUncertainty = max(0.001, recentStdDev * 0.5)
         let width = baseUncertainty * sqrt(Double(minutesForward) / 5.0)
 
         return (
-            low: max(1.0, predictedGwei - width),
+            low: max(0.001, predictedGwei - width),
             high: predictedGwei + width
         )
     }
@@ -314,3 +315,4 @@ enum GasForecastEngine {
         )
     }
 }
+
