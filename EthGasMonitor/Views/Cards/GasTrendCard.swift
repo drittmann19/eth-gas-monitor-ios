@@ -91,8 +91,6 @@ struct GasTrendCard: View {
                     )
                     .stroke(statusColor, lineWidth: 2.5)
 
-
-
                     // NOW dot at center
                     Circle()
                         .fill(statusColor)

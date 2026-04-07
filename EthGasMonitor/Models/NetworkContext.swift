@@ -29,7 +29,7 @@ enum NetworkContexts {
         duration: "Typically lasts 1-4 hours",
         priority: 10,
         condition: { data in
-            data.gasPrice > 50 && data.pendingTx > 200000
+            data.gasPrice > 15 && data.pendingTx > 200000
         }
     )
 
@@ -62,7 +62,7 @@ enum NetworkContexts {
         duration: "Consider waiting if not urgent",
         priority: 7,
         condition: { data in
-            data.gasPrice > 40 && data.highDuration > 120
+            data.gasPrice > 10 && data.highDuration > 120
         }
     )
 
@@ -73,7 +73,7 @@ enum NetworkContexts {
         duration: "Usually drops after 9pm UTC",
         priority: 6,
         condition: { data in
-            data.gasPrice > 25 && TimeHelpers.isPeakHours(data.timeUTC)
+            data.gasPrice > 6 && TimeHelpers.isPeakHours(data.timeUTC)
         }
     )
 
@@ -84,7 +84,7 @@ enum NetworkContexts {
         duration: "Typically lasts until afternoon UTC",
         priority: 5,
         condition: { data in
-            data.gasPrice < 10 && TimeHelpers.isWeekendMorning(data.timeUTC, dayOfWeek: data.dayOfWeek)
+            data.gasPrice < 3 && TimeHelpers.isWeekendMorning(data.timeUTC, dayOfWeek: data.dayOfWeek)
         }
     )
 
@@ -95,7 +95,7 @@ enum NetworkContexts {
         duration: "Low gas typically lasts until 12pm UTC",
         priority: 4,
         condition: { data in
-            data.gasPrice < 15 && TimeHelpers.isLateNight(data.timeUTC)
+            data.gasPrice < 4 && TimeHelpers.isLateNight(data.timeUTC)
         }
     )
 

@@ -22,9 +22,9 @@ struct ContentView: View {
 
     private var statusMessage: String {
         switch gweiValue {
-        case ..<8: return "OPTIMAL"
-        case 8..<20: return "ACCEPTABLE"
-        case 20..<50: return "COSTLY"
+        case ..<2: return "OPTIMAL"
+        case 2..<6: return "ACCEPTABLE"
+        case 6..<15: return "COSTLY"
         default: return "SEVERE"
         }
     }

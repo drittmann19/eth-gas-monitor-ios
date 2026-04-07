@@ -83,16 +83,15 @@ enum GasForecastEngine {
             ))
         }
 
-        // Anchor first forecast point to the last historical price.
-        // Give it a small initial band width so the confidence region is visually
-        // anchored at the NOW marker rather than appearing to start to the right.
+        // Anchor first forecast point to the last historical price with zero band
+        // width so the confidence region starts as a point at NOW and expands
+        // naturally — giving the correct "cone" shape.
         let anchorGwei = historical.last ?? currentGwei
-        let initialHalfWidth = max(0.3, stdDev * 0.25)
         forecastPoints[0] = ForecastPoint(
             minutesFromNow: 0,
             predictedGwei: anchorGwei,
-            confidenceLow: max(0.001, anchorGwei - initialHalfWidth),
-            confidenceHigh: anchorGwei + initialHalfWidth
+            confidenceLow: anchorGwei,
+            confidenceHigh: anchorGwei
         )
 
         // Normalize everything on a shared scale
@@ -184,12 +183,12 @@ enum GasForecastEngine {
     // MARK: - Layer 3: Blended forecast
 
     static func blendedForecast(trendProjection: Double, hourlyBaseline: Double, minutesForward: Int) -> Double {
-        // Momentum weight decays: 0.7 at t+0, ~0.45 at t+30, ~0.12 at t+120
-        let momentumWeight = 0.7 * exp(-0.015 * Double(minutesForward))
-        let baselineWeight = 1.0 - momentumWeight
-
-        let blended = momentumWeight * trendProjection + baselineWeight * hourlyBaseline
-        return max(0.001, blended)
+        // Use trend momentum only. Blending toward hourlyBaseline caused the
+        // forecast to drift toward historical peak prices even when gas is
+        // currently well below those averages, making the chart always appear
+        // to shoot up to the right. The Best Window card uses baselines
+        // directly; the chart just needs to show near-term momentum.
+        return max(0.001, trendProjection)
     }
 
     // MARK: - Confidence band
@@ -199,8 +198,10 @@ enum GasForecastEngine {
             return (low: predictedGwei, high: predictedGwei)
         }
 
-        // Width grows with sqrt of time, scaled by recent volatility
-        let baseUncertainty = max(0.001, recentStdDev * 0.5)
+        // Width grows with sqrt of time (uncertainty increases with horizon).
+        // Use at least 5% of current price as the base so the band is always
+        // visible even when gas is very stable and stdDev is near zero.
+        let baseUncertainty = max(predictedGwei * 0.05, recentStdDev * 0.5)
         let width = baseUncertainty * sqrt(Double(minutesForward) / 5.0)
 
         return (
@@ -272,7 +273,6 @@ enum GasForecastEngine {
         historical: [Double],
         forecast: [ForecastPoint]
     ) -> (histNorm: [Double], foreNorm: [Double], lowNorm: [Double], highNorm: [Double], min: Double, max: Double) {
-        // Find global min/max across all data
         let histMin = historical.min() ?? 0
         let histMax = historical.max() ?? 100
 
@@ -280,14 +280,16 @@ enum GasForecastEngine {
         let forecastLow = forecast.map(\.confidenceLow)
         let forecastHigh = forecast.map(\.confidenceHigh)
 
-        let allMin = Swift.min(histMin, forecastLow.min() ?? histMin)
-        let allMax = Swift.max(histMax, forecastHigh.max() ?? histMax)
-
-        // Add 10% padding
-        let range = allMax - allMin
-        let padding = range * 0.1
-        let normMin = allMin - padding
-        let normMax = allMax + padding
+        // Base scale on historical data. Then extend upward to fit the forecast
+        // band, but cap the extension at 1.5x historical range so a runaway
+        // baseline can't push normMax into the sky again.
+        // Enforce a minimum range of 2 Gwei so very stable gas is still legible.
+        let histRange = max(histMax - histMin, 2.0)
+        let forecastBandMax = forecastHigh.max() ?? histMax
+        let cappedForecastMax = min(forecastBandMax, histMax + histRange * 1.5)
+        let padding = histRange * 0.1
+        let normMin = histMin - padding
+        let normMax = max(histMax, cappedForecastMax) + padding
         let normRange = normMax - normMin
 
         guard normRange > 0 else {

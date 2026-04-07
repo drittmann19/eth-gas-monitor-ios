@@ -365,7 +365,13 @@ class GasDataManager: ObservableObject {
             })
         }
 
-        if let data = defaults.data(forKey: "gasPriceHistory_v1"),
+        // Only restore gas price history if it was persisted within the last 30 minutes.
+        // Stale history causes incorrect spike calculations (recentSpikePercent compares
+        // current price to a price that may be hours old in wall-clock time).
+        let lastPersist = defaults.object(forKey: "lastPersistTimestamp_v1") as? Date ?? .distantPast
+        let historyIsStale = Date().timeIntervalSince(lastPersist) > 1800
+        if !historyIsStale,
+           let data = defaults.data(forKey: "gasPriceHistory_v1"),
            let decoded = try? JSONDecoder().decode([Double].self, from: data) {
             gasPriceHistory = Array(decoded.suffix(Self.historyCapacity))
         }
@@ -402,6 +408,8 @@ class GasDataManager: ObservableObject {
         if ethUsdPrice > 0 {
             defaults.set(ethUsdPrice, forKey: "lastEthUsdPrice")
         }
+
+        defaults.set(Date(), forKey: "lastPersistTimestamp_v1")
     }
 
     private func debouncedPersist() {

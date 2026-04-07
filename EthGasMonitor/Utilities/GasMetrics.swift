@@ -24,14 +24,14 @@ enum GasMetrics {
         return change.rounded()
     }
 
-    /// Calculates how many consecutive minutes gas has been above 40 Gwei
+    /// Calculates how many consecutive minutes gas has been above 6 Gwei (COSTLY threshold)
     /// - Parameter gasPrices24h: Array of gas prices at 1-minute intervals
     /// - Returns: Number of consecutive minutes with elevated gas
     static func calculateHighDuration(_ gasPrices24h: [Double]) -> Int {
         var duration = 0
 
         for i in stride(from: gasPrices24h.count - 1, through: 0, by: -1) {
-            if gasPrices24h[i] > 40 {
+            if gasPrices24h[i] > 6 {
                 duration += 1
             } else {
                 break
